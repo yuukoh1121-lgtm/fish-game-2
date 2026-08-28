@@ -88,7 +88,7 @@
                     <p class="font-bold text-yellow-300 mb-0.5">🎣 遊び方:</p>
                     <p>・魚を落として同じ種類同士くっつけて出世させよう！</p>
                     <p>・左上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
-                    <p>・くらげとフグはお邪魔アイテム！釣り針（🪝）で消そう。</p>
+                    <p>・くらげとフグはお邪魔アイテム！釣り針（🪼・🐡は🪝で）消そう。</p>
                     <p>・エビ（🦐）は魚に当たるとワンランクアップさせるよ！</p>
                     <p>・画面下部のサメボタンを押すと1度だけ全消しできます。</p>
                     <p>・いけすの上のラインを超えた状態が続くとゲームオーバー。</p>
@@ -129,15 +129,14 @@
             </div>
         </div>
 
-        <!-- ゲーム画面下のボタン＆説明エリア (ゲーム中のみ表示) -->
-        <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 gap-2 opacity-0 transition-opacity duration-500" id="gameUIFooter">
+        <!-- ゲーム画面下のボタン＆Exitエリア (ゲーム中のみ表示) -->
+        <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 opacity-0 transition-opacity duration-500" id="gameUIFooter">
             <button id="sharkBtn" onclick="callShark()" class="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0">
                 🦈 サメ出動 (あと1回)
             </button>
-            <div class="text-slate-400 text-[10px] sm:text-xs text-right leading-tight">
-                <span class="text-pink-400 font-bold">🦈 サメで魚を全消し！(1回限定)</span><br>
-                🐟注文揃えて出荷 🐡🪼は🪝で消す
-            </div>
+            <button id="exitBtn" onclick="returnToTitle()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-black text-xs shadow-lg active:scale-95 transition-transform border-2 border-slate-500 shrink-0">
+                🚪 Exit (表紙へ)
+            </button>
         </div>
     </main>
 
@@ -222,10 +221,44 @@
             document.getElementById('startBtn').addEventListener('click', () => {
                 isGameStarted = true;
                 canDrop = true;
-                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+                document.getElementById('startScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('startScreen').classList.add('hidden');
+                    document.getElementById('startScreen').style.opacity = '1';
+                }, 300);
                 document.getElementById('gameUIHeader').classList.remove('opacity-0');
                 document.getElementById('gameUIFooter').classList.remove('opacity-0');
             });
+        }
+
+        function returnToTitle() {
+            isGameStarted = false;
+            canDrop = false;
+            const bodies = Composite.allBodies(world).filter(b => b.itemType);
+            Matter.World.remove(world, bodies);
+            
+            score = 0;
+            updateScore(0);
+            isGameOver = false;
+            gameOverTimer = 0;
+            currentMissionIndex = 0;
+            isMissionAnimating = false;
+            updateMissionUI();
+            nextItem = getRandomItem();
+            nextNextItem = getRandomItem();
+            canUseShark = true;
+            const btn = document.getElementById('sharkBtn');
+            if (btn) {
+                btn.innerText = "🦈 サメ出動 (あと1回)";
+                btn.style.background = "";
+                btn.style.cursor = "pointer";
+            }
+            document.getElementById('gameOverUI').classList.add('hidden');
+
+            document.getElementById('gameUIHeader').classList.add('opacity-0');
+            document.getElementById('gameUIFooter').classList.add('opacity-0');
+            document.getElementById('startScreen').classList.remove('hidden');
         }
 
         function callShark() {
@@ -763,8 +796,20 @@
                 }
             } else if (itemData.type === 'fugu') {
                 c.rotate(angle);
-                c.beginPath(); c.arc(0, 0, 28, 0, Math.PI*2); c.fillStyle = '#bef264'; c.fill();
-                c.fillStyle = '#166534'; c.font = "bold 30px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText("🐡", 0, 0);
+                // フグの背景に赤い円（赤背景の丸）を描画
+                c.beginPath();
+                c.arc(0, 0, 28, 0, Math.PI * 2);
+                c.fillStyle = '#EF4444'; // 赤色
+                c.fill();
+                c.lineWidth = 2;
+                c.strokeStyle = '#991B1B';
+                c.stroke();
+
+                c.fillStyle = '#FFFFFF';
+                c.font = "bold 26px sans-serif";
+                c.textAlign = "center";
+                c.textBaseline = "middle";
+                c.fillText("🐡", 0, 0);
             } else if (itemData.type === 'jellyfish') {
                 c.rotate(angle);
                 c.beginPath(); c.arc(0, 0, 24, 0, Math.PI*2); c.fillStyle = 'rgba(216, 180, 254, 0.7)'; c.fill();
