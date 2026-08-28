@@ -63,6 +63,14 @@
             pointer-events: none;
             filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
         }
+        /* サメボタン用の点滅アニメーション */
+        @keyframes pulseAlert {
+            0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); }
+            50% { transform: scale(1.08); opacity: 0.85; box-shadow: 0 0 25px rgba(250, 204, 21, 1); }
+        }
+        .animate-pinch {
+            animation: pulseAlert 0.6s infinite ease-in-out;
+        }
     </style>
 </head>
 <body class="flex flex-col h-[100dvh] m-0 overflow-hidden text-slate-800">
@@ -248,10 +256,11 @@
             nextItem = getRandomItem();
             nextNextItem = getRandomItem();
             canUseShark = true;
+            
             const btn = document.getElementById('sharkBtn');
             if (btn) {
                 btn.innerText = "🦈 サメ出動 (あと1回)";
-                btn.style.background = "";
+                btn.className = "px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0";
                 btn.style.cursor = "pointer";
             }
             document.getElementById('gameOverUI').classList.add('hidden');
@@ -266,6 +275,7 @@
             canUseShark = false;
             const btn = document.getElementById('sharkBtn');
             if (btn) {
+                btn.classList.remove('animate-pinch');
                 btn.innerText = "🦈 出動中…";
                 btn.style.background = "#64748b";
                 btn.style.cursor = "not-allowed";
@@ -286,6 +296,11 @@
                 });
                 updateScore(removableBodies.length * 50);
                 gameOverTimer = 0;
+                // サメ使用後はピンチアニメーションを強制解除
+                const sharkBtn = document.getElementById('sharkBtn');
+                if (sharkBtn && canUseShark === false) {
+                    sharkBtn.classList.remove('animate-pinch');
+                }
             }, 700);
 
             setTimeout(() => {
@@ -571,8 +586,16 @@
             if (isGameOver || !isGameStarted) return;
             const bodies = Composite.allBodies(world);
             let isOver = bodies.some(b => ['fish', 'fugu'].includes(b.itemType) && b.bounds.min.y < DEAD_LINE_Y && b.speed < 2.0);
+            
+            const sharkBtn = document.getElementById('sharkBtn');
+
             if (isOver) {
                 gameOverTimer++;
+                // 危険ラインを超えてピンチ状態になったらサメボタンをピカピカ光らせる（未使用の場合のみ）
+                if (canUseShark && sharkBtn) {
+                    sharkBtn.classList.add('animate-pinch');
+                }
+
                 if (gameOverTimer > 60) {
                     isGameOver = true;
                     canDrop = false;
@@ -581,6 +604,10 @@
                 }
             } else {
                 gameOverTimer = 0;
+                // ピンチ脱出したらサメボタンのピカピカを止めて通常に戻す（未使用の場合のみ）
+                if (canUseShark && sharkBtn) {
+                    sharkBtn.classList.remove('animate-pinch');
+                }
             }
         }
 
@@ -601,6 +628,7 @@
             const btn = document.getElementById('sharkBtn');
             if (btn) {
                 btn.innerText = "🦈 サメ出動 (あと1回)";
+                btn.className = "px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0";
                 btn.style.background = "";
                 btn.style.cursor = "pointer";
             }
@@ -796,15 +824,13 @@
                 }
             } else if (itemData.type === 'fugu') {
                 c.rotate(angle);
-                // フグの背景に赤い円（赤背景の丸）を描画
                 c.beginPath();
                 c.arc(0, 0, 28, 0, Math.PI * 2);
-                c.fillStyle = '#EF4444'; // 赤色
+                c.fillStyle = '#EF4444';
                 c.fill();
                 c.lineWidth = 2;
                 c.strokeStyle = '#991B1B';
                 c.stroke();
-
                 c.fillStyle = '#FFFFFF';
                 c.font = "bold 26px sans-serif";
                 c.textAlign = "center";
