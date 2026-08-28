@@ -43,7 +43,7 @@
         .animate-pop {
             animation: pop 0.3s ease-in-out;
         }
-        /* サメが右から左へ泳ぐアニメーション ＆ パクパク口の動き */
+        /* サメのアニメーション */
         @keyframes swimShark {
             0% { right: -80px; transform: scaleX(-1) translateY(0) rotate(0deg); }
             25% { transform: scaleX(-1) translateY(-15px) rotate(-5deg); }
@@ -68,7 +68,6 @@
 </head>
 <body class="flex flex-col h-[100dvh] m-0 overflow-hidden text-slate-800">
 
-    <!-- ヘッダーに売上を移動 -->
     <header class="bg-gradient-to-r from-cyan-700 to-blue-900 text-white p-2 sm:p-3 shadow-lg relative z-20 border-b-4 border-yellow-400 flex-shrink-0 flex justify-between items-center px-4">
         <h1 class="text-lg sm:text-xl font-black tracking-wider text-outline flex-1">
             出世魚 <span class="text-yellow-300">〜板前〜</span>
@@ -81,41 +80,38 @@
 
     <main class="flex-1 w-full flex flex-col items-center justify-center p-2 sm:p-4 bg-slate-900 overflow-hidden relative">
         <div id="canvas-wrapper">
-            <!-- スタート画面（表紙） -->
+            <!-- スタート画面（表紙） - 改修箇所1, 2 -->
             <div id="startScreen" class="absolute inset-0 bg-slate-900/95 flex flex-col items-center justify-center text-white z-40 backdrop-blur-md p-6 text-center">
-                <h2 class="text-3xl sm:text-4xl font-black text-yellow-400 mb-1 text-outline">出世魚ゲーム</h2>
-                <p class="text-xs sm:text-sm font-bold text-blue-300 mb-4">〜板前サバイバル〜</p>
+                <h2 class="text-3xl sm:text-4xl font-black text-yellow-400 mb-2 text-outline">出世魚ゲーム</h2>
+                <p class="text-sm font-bold text-blue-300 mb-6">〜板前サバイバル〜</p>
                 
-                <div class="bg-blue-950/80 border-2 border-blue-400/50 rounded-xl p-3.5 text-left mb-6 max-w-xs text-xs space-y-1.5 shadow-xl">
+                <!-- 遊び方の文字サイズを大きく変更 (text-xs -> text-sm) -->
+                <div class="bg-blue-950/80 border-2 border-blue-400/50 rounded-xl p-4 text-left mb-8 max-w-xs text-sm space-y-2 shadow-xl">
                     <p class="font-bold text-yellow-300 mb-1">🎣 遊び方:</p>
                     <p>・魚を落として同じ種類同士をくっつけて出世させよう！</p>
-                    <p>・左上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
-                    <p>・いけすの上のラインを超えた状態が続くとゲームオーバーです。</p>
-                    <p>・左下のサメボタンを押すと1回だけ全消しできます。</p>
+                    <p>・上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
+                    <p>・いけすの上のラインを超えた状態が続くとゲームオーバー。</p>
                 </div>
 
-                <button id="startBtn" class="px-8 py-3.5 bg-gradient-to-r from-green-400 to-emerald-600 text-white rounded-full font-black text-lg hover:scale-105 active:scale-95 transition-transform shadow-[0_0_15px_rgba(52,211,153,0.5)] text-outline">
+                <button id="startBtn" class="px-8 py-4 bg-gradient-to-r from-green-400 to-emerald-600 text-white rounded-full font-black text-xl hover:scale-105 active:scale-95 transition-transform shadow-[0_0_15px_rgba(52,211,153,0.5)] text-outline">
                     ゲームスタート
                 </button>
             </div>
 
-            <!-- 上部UI (コンパクト化) -->
-            <div class="absolute top-2 left-2 right-2 flex justify-between z-10 pointer-events-none">
-                <!-- ミッションボード（左） -->
+            <!-- 上部UI (ゲーム中のみ表示されるように配置を整理) -->
+            <div class="absolute top-2 left-2 right-2 flex justify-between z-10 pointer-events-none opacity-0 transition-opacity duration-500" id="gameUIHeader">
                 <div id="missionBoard" class="w-[140px] bg-white/95 backdrop-blur-sm rounded-lg p-1.5 shadow-lg flex flex-col justify-between border-2 border-orange-500 pointer-events-auto origin-top-left">
                     <p class="text-[9px] text-orange-600 font-bold leading-none mb-0.5">📝 ご注文</p>
                     <p class="text-xs font-black text-slate-800 leading-tight truncate" id="missionTitle">🍗 ツバス唐揚</p>
                     <p class="font-black text-blue-700 text-[10px] leading-none mt-1" id="missionReq">👉 ツバス 2匹</p>
                 </div>
 
-                <!-- NEXTボード（右） -->
                 <div class="w-[50px] h-[54px] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border-2 border-blue-400 flex flex-col items-center justify-start pointer-events-auto shrink-0 relative overflow-hidden">
                     <p class="text-[9px] text-blue-800 font-bold mt-0.5 z-10 leading-none">NEXT</p>
                     <canvas id="nextCanvas" width="50" height="40" class="absolute bottom-0 w-full h-[40px]"></canvas>
                 </div>
             </div>
 
-            <!-- メインゲームキャンバス -->
             <canvas id="gameCanvas" width="420" height="700"></canvas>
 
             <!-- ゲームオーバーUI -->
@@ -132,8 +128,8 @@
             </div>
         </div>
 
-        <!-- ゲーム画面下のボタン＆説明エリア -->
-        <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 gap-2">
+        <!-- ゲーム画面下のボタン＆説明エリア (ゲーム中のみ表示) - 改修箇所2 -->
+        <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 gap-2 opacity-0 transition-opacity duration-500" id="gameUIFooter">
             <button id="sharkBtn" onclick="callShark()" class="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0">
                 🦈 サメ出動 (あと1回)
             </button>
@@ -186,13 +182,12 @@
         let nextCtx;
         let score = 0, isGameOver = false, gameOverTimer = 0;
         let nextItem = null, nextNextItem = null;
-        let canDrop = true, isDragging = false, dropX = CANVAS_WIDTH / 2;
+        let canDrop = false, isDragging = false, dropX = CANVAS_WIDTH / 2;
         let bodiesToRemove = [], bodiesToAdd = [];
         let currentMissionIndex = 0;
         let timeTick = 0;
         let isMissionAnimating = false;
         let canUseShark = true;
-        let isGameStarted = false; // ゲームが開始されたかどうかのフラグ
 
         function init() {
             canvas = document.getElementById('gameCanvas');
@@ -224,7 +219,7 @@
         }
 
         function callShark() {
-            if (!canUseShark || isGameOver || !isGameStarted) return;
+            if (!canUseShark || isGameOver) return;
             canUseShark = false;
             const btn = document.getElementById('sharkBtn');
             if (btn) {
@@ -236,560 +231,4 @@
             const wrapper = document.getElementById('canvas-wrapper');
             const sharkEl = document.createElement('div');
             sharkEl.innerHTML = "🦈";
-            sharkEl.className = "shark-anim";
-            wrapper.appendChild(sharkEl);
-
-            setTimeout(() => {
-                const bodies = Composite.allBodies(world);
-                const removableBodies = bodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
-                removableBodies.forEach(b => {
-                    b.isMissionConsumed = true;
-                    bodiesToRemove.push(b);
-                });
-                updateScore(removableBodies.length * 50);
-                gameOverTimer = 0;
-            }, 700);
-
-            setTimeout(() => {
-                sharkEl.remove();
-                if (btn) {
-                    btn.innerText = "🦈 使用済み";
-                }
-            }, 1500);
-        }
-
-        function updateMissionUI() {
-            const m = MISSIONS[currentMissionIndex];
-            const fishName = FISH_TYPES[m.targetLevel].name;
-            document.getElementById('missionTitle').innerText = `${m.icon} ${m.title}`;
-            document.getElementById('missionReq').innerText = `👉 ${fishName} ${m.count}匹`;
-            const board = document.getElementById('missionBoard');
-            board.classList.remove('animate-pop');
-            void board.offsetWidth;
-            board.classList.add('animate-pop');
-        }
-
-        function updateScore(add) {
-            score += add;
-            document.getElementById('scoreDisplay').innerText = score;
-        }
-
-        function showSushiAnimation(canvasX, canvasY, emoji, onComplete) {
-            const wrapper = document.getElementById('canvas-wrapper');
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = rect.width / CANVAS_WIDTH;
-            const scaleY = rect.height / CANVAS_HEIGHT;
-            const startX = canvasX * scaleX;
-            const startY = canvasY * scaleY;
-
-            const board = document.getElementById('missionBoard');
-            const boardRect = board.getBoundingClientRect();
-            const wrapperRect = wrapper.getBoundingClientRect();
-            const endX = boardRect.left - wrapperRect.left + boardRect.width / 2;
-            const endY = boardRect.top - wrapperRect.top + boardRect.height / 2;
-
-            const el = document.createElement('div');
-            el.innerHTML = emoji;
-            el.className = 'absolute pointer-events-none text-5xl filter drop-shadow-xl z-30 transition-all duration-[800ms] ease-in-out';
-            el.style.left = startX + 'px';
-            el.style.top = startY + 'px';
-            el.style.transform = 'translate(-50%, -50%) scale(1)';
-            wrapper.appendChild(el);
-
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    el.style.left = endX + 'px';
-                    el.style.top = endY + 'px';
-                    el.style.transform = 'translate(-50%, -50%) scale(0.2)';
-                    el.style.opacity = '0';
-                }, 50);
-            });
-
-            setTimeout(() => {
-                el.remove();
-                if (onComplete) onComplete();
-            }, 850);
-        }
-
-        function setupInputEvents() {
-            const updateX = (clientX) => {
-                const rect = canvas.getBoundingClientRect();
-                dropX = (clientX - rect.left) * (CANVAS_WIDTH / rect.width);
-            };
-
-            const start = (e) => {
-                e.preventDefault();
-                if(!isGameStarted || isGameOver || !canDrop) return;
-                updateX(e.touches?e.touches[0].clientX:e.clientX);
-                isDragging = true;
-            };
-
-            const move = (e) => {
-                e.preventDefault();
-                if(isDragging && isGameStarted && !isGameOver && canDrop) {
-                    updateX(e.touches?e.touches[0].clientX:e.clientX);
-                }
-            };
-
-            const end = (e) => {
-                e.preventDefault();
-                if(isGameStarted && !isGameOver && canDrop && isDragging) {
-                    isDragging = false;
-                    dropItem();
-                }
-            };
-
-            canvas.addEventListener('touchstart', start, {passive:false});
-            canvas.addEventListener('touchmove', move, {passive:false});
-            canvas.addEventListener('touchend', end, {passive:false});
-            canvas.addEventListener('mousedown', start);
-            canvas.addEventListener('mousemove', move);
-            canvas.addEventListener('mouseup', end);
-            canvas.addEventListener('mouseleave', () => {
-                isDragging = false;
-            });
-        }
-
-        function setupPhysicsEvents() {
-            Events.on(engine, 'beforeUpdate', function() {
-                if (!isGameStarted) return;
-                timeTick++;
-                Composite.allBodies(world).forEach(b => {
-                    if (b.itemType === 'jellyfish') {
-                        const forceX = Math.sin(timeTick * 0.03) * 0.0005 * b.mass;
-                        const targetY = CANVAS_HEIGHT / 2;
-                        const yDiff = b.position.y - targetY;
-                        const forceY = -0.001 * b.mass - (yDiff * 0.000002 * b.mass);
-                        Body.applyForce(b, b.position, { x: forceX, y: forceY });
-                        if (b.velocity.y < -2) {
-                            Body.setVelocity(b, { x: b.velocity.x, y: -2 });
-                        }
-                    }
-                });
-            });
-
-            Events.on(engine, 'collisionStart', function(event) {
-                if (!isGameStarted) return;
-                event.pairs.forEach(pair => {
-                    const { bodyA, bodyB } = pair;
-                    if(bodyA.isStatic || bodyB.isStatic) return;
-
-                    if (bodyA.itemType === 'fish' && bodyB.itemType === 'fish') {
-                        if (bodyA.fishLevel === bodyB.fishLevel && !bodyA.isMerged && !bodyB.isMerged && !bodyA.isMissionConsumed && !bodyB.isMissionConsumed) {
-                            bodyA.isMerged = true;
-                            bodyB.isMerged = true;
-                            bodiesToRemove.push(bodyA, bodyB);
-                            const nextLevel = bodyA.fishLevel + 1;
-                            if (nextLevel < FISH_TYPES.length) {
-                                bodiesToAdd.push(createItem((bodyA.position.x+bodyB.position.x)/2, (bodyA.position.y+bodyB.position.y)/2, {type: 'fish', level: nextLevel}));
-                                updateScore(EVOLUTION_POINTS[nextLevel]);
-                            } else {
-                                updateScore(EVOLUTION_POINTS[11]);
-                            }
-                        }
-                    }
-
-                    const handleBait = (bait, target) => {
-                        if (target.itemType === 'fish' && !bait.isMerged && !target.isMerged && !target.isMissionConsumed) {
-                            bait.isMerged = true;
-                            target.isMerged = true;
-                            bodiesToRemove.push(bait, target);
-                            const nextLv = target.fishLevel + 1;
-                            if(nextLv < FISH_TYPES.length) {
-                                bodiesToAdd.push(createItem(target.position.x, target.position.y, {type: 'fish', level: nextLv}));
-                                updateScore(5);
-                            }
-                        }
-                    };
-                    if (bodyA.itemType === 'bait') handleBait(bodyA, bodyB);
-                    else if (bodyB.itemType === 'bait') handleBait(bodyB, bodyA);
-
-                    const handleHook = (hook, target) => {
-                        if (['fish', 'fugu', 'jellyfish'].includes(target.itemType) && !hook.isMerged && !target.isMerged) {
-                            hook.isMerged = true;
-                            target.isMerged = true;
-                            bodiesToRemove.push(hook, target);
-                            if(target.itemType === 'fish') updateScore(target.fishLevel * 2);
-                            else updateScore(10);
-                        }
-                    };
-                    if (bodyA.itemType === 'hook') handleHook(bodyA, bodyB);
-                    else if (bodyB.itemType === 'hook') handleHook(bodyB, bodyA);
-                });
-            });
-
-            Events.on(engine, 'afterUpdate', function() {
-                if (!isGameStarted || isGameOver) return;
-
-                if (!isMissionAnimating) {
-                    const m = MISSIONS[currentMissionIndex];
-                    const allBodies = Composite.allBodies(world);
-                    const targetFishes = allBodies.filter(b => b.itemType === 'fish' && b.fishLevel === m.targetLevel && !b.isMerged && !b.isMissionConsumed && b.speed < 2);
-                    const kanburiList = allBodies.filter(b => b.itemType === 'fish' && b.fishLevel === 9 && !b.isMerged && !b.isMissionConsumed);
-
-                    if (kanburiList.length > 0) {
-                        isMissionAnimating = true;
-                        const hero = kanburiList[0];
-                        hero.isMissionConsumed = true;
-                        bodiesToRemove.push(hero);
-                        showSushiAnimation(hero.position.x, hero.position.y, "✨🐡✨", () => {
-                            updateScore(m.reward * 3);
-                            currentMissionIndex = (currentMissionIndex + 1) % MISSIONS.length;
-                            updateMissionUI();
-                            isMissionAnimating = false;
-                        });
-                    } else if (targetFishes.length >= m.count) {
-                        isMissionAnimating = true;
-                        const consumed = targetFishes.slice(0, m.count);
-                        let completedCount = 0;
-                        consumed.forEach(b => {
-                            b.isMissionConsumed = true;
-                            bodiesToRemove.push(b);
-                            showSushiAnimation(b.position.x, b.position.y, m.icon, () => {
-                                completedCount++;
-                                if(completedCount === m.count) {
-                                    updateScore(m.reward);
-                                    currentMissionIndex = (currentMissionIndex + 1) % MISSIONS.length;
-                                    updateMissionUI();
-                                    isMissionAnimating = false;
-                                }
-                            });
-                        });
-                    }
-                }
-
-                if (bodiesToRemove.length > 0) {
-                    Matter.World.remove(world, bodiesToRemove);
-                    bodiesToRemove = [];
-                }
-                if (bodiesToAdd.length > 0) {
-                    Matter.World.add(world, bodiesToAdd);
-                    bodiesToAdd = [];
-                }
-
-                checkGameOver();
-
-                Composite.allBodies(world).forEach(b => {
-                    if (b.position.y > CANVAS_HEIGHT + 200) Matter.World.remove(world, b);
-                });
-            });
-        }
-
-        function createItem(x, y, itemData) {
-            let body;
-            if (itemData.type === 'fish') {
-                const data = FISH_TYPES[itemData.level];
-                body = Bodies.circle(x, y, data.radius, { restitution: 0.25, friction: 0.6, density: 0.001 * (itemData.level + 1) });
-                body.fishLevel = itemData.level;
-            } else if (itemData.type === 'fugu') {
-                body = Bodies.circle(x, y, 28, { restitution: 0.8, friction: 0.8, density: 0.001 });
-            } else if (itemData.type === 'jellyfish') {
-                body = Bodies.circle(x, y, 24, { restitution: 0.1, friction: 0.1, density: 0.0005 });
-            } else if (itemData.type === 'bait') {
-                body = Bodies.circle(x, y, 15, { restitution: 0.5, density: 0.002 });
-            } else if (itemData.type === 'hook') {
-                body = Bodies.rectangle(x, y, 20, 30, { restitution: 0.1, density: 0.005 });
-            }
-            body.itemType = itemData.type;
-            body.isMerged = false;
-            body.isMissionConsumed = false;
-            return body;
-        }
-
-        function getRandomItem() {
-            const r = Math.random();
-            if (r > 0.95) return { type: 'hook' };
-            if (r > 0.90) return { type: 'bait' };
-            if (r > 0.83) return { type: 'jellyfish' };
-            if (r > 0.75) return { type: 'fugu' };
-            const fr = Math.random();
-            let lv = 0;
-            if(fr > 0.9) lv = 3;
-            else if(fr > 0.7) lv = 2;
-            else if(fr > 0.4) lv = 1;
-            return { type: 'fish', level: lv };
-        }
-
-        function dropItem() {
-            if (!isGameStarted || isGameOver) return;
-            canDrop = false;
-            let radius = 20;
-            if (nextItem.type === 'fish') radius = FISH_TYPES[nextItem.level].radius;
-            else if (nextItem.type === 'fugu') radius = 28;
-            else if (nextItem.type === 'jellyfish') radius = 24;
-            else if (nextItem.type === 'bait') radius = 15;
-
-            const x = Math.max(radius+2, Math.min(CANVAS_WIDTH-radius-2, dropX));
-            Matter.World.add(world, createItem(x, 70, nextItem));
-            nextItem = nextNextItem;
-            nextNextItem = getRandomItem();
-
-            setTimeout(() => {
-                if(!isGameOver && isGameStarted) canDrop = true;
-            }, 800);
-        }
-
-        function checkGameOver() {
-            if (isGameOver || !isGameStarted) return;
-            const bodies = Composite.allBodies(world);
-            let isOver = bodies.some(b => ['fish', 'fugu'].includes(b.itemType) && b.bounds.min.y < DEAD_LINE_Y && b.speed < 2.0);
-            if (isOver) {
-                gameOverTimer++;
-                if (gameOverTimer > 60) {
-                    isGameOver = true;
-                    canDrop = false;
-                    document.getElementById('finalScore').innerText = score;
-                    document.getElementById('gameOverUI').classList.remove('hidden');
-                }
-            } else {
-                gameOverTimer = 0;
-            }
-        }
-
-        function restartGame() {
-            const bodies = Composite.allBodies(world).filter(b => b.itemType);
-            Matter.World.remove(world, bodies);
-            score = 0;
-            updateScore(0);
-            isGameOver = false;
-            gameOverTimer = 0;
-            canDrop = true;
-            currentMissionIndex = 0;
-            isMissionAnimating = false;
-            updateMissionUI();
-            nextItem = getRandomItem();
-            nextNextItem = getRandomItem();
-            canUseShark = true;
-            const btn = document.getElementById('sharkBtn');
-            if (btn) {
-                btn.innerText = "🦈 サメ出動 (あと1回)";
-                btn.style.background = "";
-                btn.style.cursor = "pointer";
-            }
-            document.getElementById('gameOverUI').classList.add('hidden');
-        }
-
-        function shadeColor(color, percent) {
-            let R = parseInt(color.substring(1,3),16),
-                G = parseInt(color.substring(3,5),16),
-                B = parseInt(color.substring(5,7),16);
-            R = parseInt(R * (100 + percent) / 100);
-            G = parseInt(G * (100 + percent) / 100);
-            B = parseInt(B * (100 + percent) / 100);
-            R = R<255?R:255; G = G<255?G:255; B = B<255?B:255;
-            R = R>0?R:0; G = G>0?G:0; B = B>0?B:0;
-            return "#"+(R.toString(16).length==1?"0"+R.toString(16):R.toString(16))+(G.toString(16).length==1?"0"+G.toString(16):G.toString(16))+(B.toString(16).length==1?"0"+B.toString(16):B.toString(16));
-        }
-
-        function draw() {
-            if (!ctx) return;
-            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            
-            ctx.fillStyle = "rgba(255,255,255,0.15)";
-            const t = Date.now() / 1000;
-            for(let i=0; i<10; i++) {
-                ctx.beginPath();
-                ctx.arc((CANVAS_WIDTH/10)*i + Math.sin(t+i)*20, CANVAS_HEIGHT - ((t*50 + i*100) % CANVAS_HEIGHT), i*2+2, 0, Math.PI*2);
-                ctx.fill();
-            }
-
-            ctx.beginPath();
-            ctx.moveTo(0, DEAD_LINE_Y);
-            ctx.lineTo(CANVAS_WIDTH, DEAD_LINE_Y);
-            ctx.strokeStyle = gameOverTimer > 0 && gameOverTimer % 20 < 10 ? "rgba(255, 0, 0, 0.9)" : "rgba(255, 100, 100, 0.5)";
-            ctx.lineWidth = gameOverTimer > 0 ? 4 : 2;
-            ctx.setLineDash([10, 10]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            if (isGameStarted && canDrop && !isGameOver) {
-                let radius = 20;
-                if (nextItem.type === 'fish') radius = FISH_TYPES[nextItem.level].radius;
-                else if (nextItem.type === 'fugu') radius = 28;
-                else if (nextItem.type === 'jellyfish') radius = 24;
-                else if (nextItem.type === 'bait') radius = 15;
-
-                const pX = Math.max(radius+2, Math.min(CANVAS_WIDTH-radius-2, dropX));
-                ctx.beginPath();
-                ctx.moveTo(pX, 70 + radius);
-                ctx.lineTo(pX, CANVAS_HEIGHT);
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                ctx.globalAlpha = 0.5;
-                drawItem(ctx, pX, 70, nextItem, 0);
-                ctx.globalAlpha = 1.0;
-            }
-
-            const bodies = Composite.allBodies(world);
-            for (let body of bodies) {
-                if (body.itemType) {
-                    drawItem(ctx, body.position.x, body.position.y, {type: body.itemType, level: body.fishLevel}, body.angle);
-                }
-            }
-
-            if (nextCtx && isGameStarted) {
-                nextCtx.clearRect(0, 0, 50, 40);
-                drawItem(nextCtx, 25, 20, nextNextItem, 0, 0.35);
-            }
-
-            requestAnimationFrame(draw);
-        }
-
-        function drawItem(targetCtx, x, y, itemData, angle, scale = 1) {
-            const c = targetCtx;
-            c.save();
-            c.translate(x, y);
-            c.scale(scale, scale);
-
-            if (itemData.type === 'fish') {
-                const fishData = FISH_TYPES[itemData.level];
-                const radius = fishData.radius;
-                c.save();
-                c.rotate(angle);
-                c.shadowColor = 'rgba(0, 0, 0, 0.25)';
-                c.shadowBlur = radius * 0.2;
-                c.shadowOffsetX = radius * 0.05;
-                c.shadowOffsetY = radius * 0.05;
-
-                const color = fishData.color;
-                const darkColor = shadeColor(color, -25);
-
-                if (fishData.level === 0) {
-                    c.beginPath();
-                    c.arc(0, 0, radius, 0, Math.PI*2);
-                    c.fillStyle = color;
-                    c.fill();
-                    c.beginPath();
-                    c.arc(0, 0, radius*0.3, 0, Math.PI*2);
-                    c.fillStyle = 'rgba(0,0,0,0.6)';
-                    c.fill();
-                } else {
-                    c.beginPath();
-                    c.moveTo(-radius * 0.5, 0);
-                    c.lineTo(-radius * 1.15, -radius * 0.65);
-                    c.quadraticCurveTo(-radius * 0.9, 0, -radius * 1.15, radius * 0.65);
-                    c.closePath();
-                    c.fillStyle = darkColor;
-                    c.fill();
-
-                    if (fishData.level >= 2) {
-                        c.beginPath();
-                        c.moveTo(-radius*0.2, -radius*0.7);
-                        c.lineTo(-radius*0.6, -radius*1.1);
-                        c.lineTo(radius*0.2, -radius*0.8);
-                        c.fill();
-                        c.beginPath();
-                        c.moveTo(-radius*0.2, radius*0.7);
-                        c.lineTo(-radius*0.5, radius*1.0);
-                        c.lineTo(radius*0.1, radius*0.8);
-                        c.fill();
-                    }
-
-                    c.beginPath();
-                    c.ellipse(0, 0, radius, radius * 0.9, 0, 0, Math.PI*2);
-                    c.fillStyle = color;
-                    c.fill();
-
-                    if (fishData.level >= 3) {
-                        c.beginPath();
-                        c.ellipse(0, 0, radius * 0.9, radius * 0.15, 0, 0, Math.PI*2);
-                        c.fillStyle = 'rgba(253, 224, 71, 0.5)';
-                        c.fill();
-                    }
-
-                    const eyeX = radius * 0.5, eyeY = -radius * 0.25, eyeSize = radius * 0.18;
-                    c.beginPath();
-                    c.arc(eyeX, eyeY, eyeSize, 0, Math.PI*2);
-                    c.fillStyle = 'white';
-                    c.fill();
-                    c.beginPath();
-                    c.arc(eyeX + eyeSize*0.3, eyeY, eyeSize*0.4, 0, Math.PI*2);
-                    c.fillStyle = '#1e293b';
-                    c.fill();
-                    c.beginPath();
-                    c.arc(eyeX - eyeSize, eyeY + eyeSize*1.2, eyeSize*0.6, 0, Math.PI*2);
-                    c.fillStyle = 'rgba(244, 114, 182, 0.5)';
-                    c.fill();
-
-                    if (fishData.level === 9) {
-                        c.fillStyle = 'rgba(255,255,255,0.7)';
-                        c.beginPath(); c.arc(-radius*0.3, -radius*0.4, radius*0.1, 0, Math.PI*2); c.fill();
-                        c.beginPath(); c.arc(-radius*0.1, -radius*0.6, radius*0.08, 0, Math.PI*2); c.fill();
-                        c.beginPath(); c.arc(-radius*0.5, -radius*0.1, radius*0.12, 0, Math.PI*2); c.fill();
-                    }
-
-                    if (fishData.level === 10) {
-                        c.fillStyle = '#FBBF24';
-                        c.beginPath();
-                        c.moveTo(radius * 0.1, -radius * 0.8);
-                        c.lineTo(radius * 0.2, -radius * 1.3);
-                        c.lineTo(radius * 0.4, -radius * 0.9);
-                        c.lineTo(radius * 0.6, -radius * 1.3);
-                        c.lineTo(radius * 0.7, -radius * 0.8);
-                        c.closePath();
-                        c.fill();
-                        c.strokeStyle = '#B45309';
-                        c.lineWidth = 2;
-                        c.stroke();
-                    }
-                }
-                c.restore();
-
-                c.fillStyle = '#fff';
-                c.textAlign = "center";
-                c.textBaseline = "middle";
-                const fontSize = Math.max(10, radius * 0.35);
-                c.font = `900 ${fontSize}px 'M PLUS Rounded 1c', sans-serif`;
-                c.strokeStyle = 'rgba(0,0,0,0.85)';
-                c.lineWidth = Math.max(2, radius * 0.12);
-                c.lineJoin = 'round';
-                c.strokeText(fishData.name, 0, 0);
-                c.fillText(fishData.name, 0, 0);
-
-                if(fishData.level >= 1) {
-                    const lvFontSize = Math.max(9, radius * 0.22);
-                    c.font = `900 ${lvFontSize}px sans-serif`;
-                    c.strokeText(`Lv.${fishData.level + 1}`, 0, radius * 0.45);
-                    c.fillText(`Lv.${fishData.level + 1}`, 0, radius * 0.45);
-                }
-            } else if (itemData.type === 'fugu') {
-                c.rotate(angle);
-                c.beginPath(); c.arc(0, 0, 28, 0, Math.PI*2); c.fillStyle = '#bef264'; c.fill();
-                c.fillStyle = '#166534'; c.font = "bold 30px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText("🐡", 0, 0);
-            } else if (itemData.type === 'jellyfish') {
-                c.rotate(angle);
-                c.beginPath(); c.arc(0, 0, 24, 0, Math.PI*2); c.fillStyle = 'rgba(216, 180, 254, 0.7)'; c.fill();
-                c.fillStyle = '#581c87'; c.font = "bold 26px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText("🪼", 0, 0);
-            } else if (itemData.type === 'bait') {
-                c.rotate(angle);
-                c.beginPath(); c.arc(0, 0, 15, 0, Math.PI*2); c.fillStyle = '#FCA5A5'; c.fill();
-                c.fillStyle = '#991B1B'; c.font = "bold 16px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText("🦐", 0, 0);
-            } else if (itemData.type === 'hook') {
-                c.rotate(angle);
-                c.beginPath();
-                c.moveTo(-5, -15); c.lineTo(-5, 5);
-                c.arc(5, 5, 10, Math.PI, 0, true);
-                c.lineTo(15, 0);
-                c.strokeStyle = '#94A3B8'; c.lineWidth = 4; c.stroke();
-                c.fillStyle = '#0F172A'; c.font = "bold 18px sans-serif"; c.textAlign="center"; c.textBaseline="middle"; c.fillText("🪝", 0, 0);
-            }
-            c.restore();
-        }
-
-        // ページロード時は初期化の準備のみ行い、スタート画面を表示状態にしておく
-        window.addEventListener('load', () => {
-            init();
-
-            // スタートボタンが押されたときの処理
-            document.getElementById('startBtn').addEventListener('click', () => {
-                isGameStarted = true;
-                document.getElementById('startScreen').classList.add('hidden');
-            });
-        });
-    </script>
-</body>
-</html>
+            sharkEl.className
