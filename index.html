@@ -20,7 +20,7 @@ body {
     width: 100%;
     max-width: 420px;
     aspect-ratio: 420 / 700;
-    max-height: 80vh;
+    max-height: 78vh;
     background: linear-gradient(to bottom, #dbeafe, #bae6fd, #7dd3fc);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     border-radius: 12px;
@@ -35,7 +35,6 @@ canvas {
 .text-outline {
     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 4px 4px rgba(0,0,0,0.3);
 }
-/* オーダーボードのアニメーション */
 @keyframes pop {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
@@ -94,14 +93,14 @@ canvas {
         </div>
     </div>
 
-    <!-- ゲーム画面の外（下部）に配置したサメボタンと説明文 -->
+    <!-- ゲーム画面下のボタン＆説明エリア -->
     <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 gap-2">
-        <button id="sharkBtn" onclick="callShark()" class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0">
+        <button id="sharkBtn" onclick="callShark()" class="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0">
             🦈 サメ出動 (あと1回)
         </button>
         <div class="text-slate-400 text-[10px] sm:text-xs text-right leading-tight">
-            🐟 注文の魚を揃えると【お寿司】に！<br>
-            🐡フグや🪼クラゲは🪝釣り針で駆除
+            <span class="text-pink-400 font-bold">🦈 サメで魚を全消し！(1回限定)</span><br>
+            🐟注文揃えて寿司出荷 🐡フグは釣り針
         </div>
     </div>
 </main>
