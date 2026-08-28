@@ -177,7 +177,7 @@
         let isMissionAnimating = false;
         let canUseShark = true;
         let isGameStarted = false;
-        let activeShark = null; // 画面上の巨大サメアニメーション用データ
+        let activeShark = null;
 
         function init() {
             canvas = document.getElementById('gameCanvas');
@@ -264,12 +264,12 @@
                 btn.style.cursor = "not-allowed";
             }
 
-            // 巨大サメのアニメーションオブジェクトを作成（右端からスタート）
+            // ★ 巨大サメのサイズをさらにでっかく（半径130）し、画面真ん中（高さ中央）をダイナミックに泳がせる設定
             activeShark = {
-                x: CANVAS_WIDTH + 150,
-                y: CANVAS_HEIGHT * 0.45,
+                x: CANVAS_WIDTH + 200,
+                y: CANVAS_HEIGHT * 0.5,
                 progress: 0,
-                duration: 90 // フレーム数
+                duration: 110
             };
         }
 
@@ -658,78 +658,76 @@
                 }
             }
 
-            // ★ 巨大サメ（本格デザイン）のCanvasアニメーション描画＆魚をパクパク食べる処理
+            // ★ でっかい巨大ザメが画面真ん中をダイナミックに泳いでパクパク食べる演出
             if (activeShark) {
                 activeShark.progress++;
                 const ratio = activeShark.progress / activeShark.duration;
-                // 右から左へ移動
-                activeShark.x = CANVAS_WIDTH + 150 - ratio * (CANVAS_WIDTH + 300);
+                activeShark.x = CANVAS_WIDTH + 200 - ratio * (CANVAS_WIDTH + 400);
 
                 ctx.save();
                 ctx.translate(activeShark.x, activeShark.y);
                 
-                // サメの本体（グラデーションの大きなボディ）
-                const sharkRadius = 90;
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-                ctx.shadowBlur = 20;
+                // でっかいサメの本体（半径を130に拡大！）
+                const sharkRadius = 130;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 25;
                 ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 10;
+                ctx.shadowOffsetY = 12;
 
-                // 体（青灰色〜紺のグラデーション）
                 const sharkGrad = ctx.createLinearGradient(-sharkRadius, -sharkRadius, sharkRadius, sharkRadius);
-                sharkGrad.addColorStop(0, '#60A5FA');
-                sharkGrad.addColorStop(1, '#1E40AF');
+                sharkGrad.addColorStop(0, '#38BDF8');
+                sharkGrad.addColorStop(1, '#1E3A8A');
                 
                 ctx.beginPath();
                 ctx.ellipse(0, 0, sharkRadius, sharkRadius * 0.7, 0, 0, Math.PI * 2);
                 ctx.fillStyle = sharkGrad;
                 ctx.fill();
 
-                // 大きな尾びれ
+                // 尾びれ
                 ctx.beginPath();
                 ctx.moveTo(sharkRadius * 0.7, 0);
-                ctx.lineTo(sharkRadius * 1.5, -sharkRadius * 0.8);
+                ctx.lineTo(sharkRadius * 1.6, -sharkRadius * 0.85);
                 ctx.lineTo(sharkRadius * 1.2, 0);
-                ctx.lineTo(sharkRadius * 1.5, sharkRadius * 0.8);
+                ctx.lineTo(sharkRadius * 1.6, sharkRadius * 0.85);
                 ctx.closePath();
                 ctx.fillStyle = '#1E3A8A';
                 ctx.fill();
 
                 // 背びれ
                 ctx.beginPath();
-                ctx.moveTo(-10, -sharkRadius * 0.7);
-                ctx.lineTo(20, -sharkRadius * 1.3);
-                ctx.lineTo(30, -sharkRadius * 0.6);
+                ctx.moveTo(-15, -sharkRadius * 0.7);
+                ctx.lineTo(25, -sharkRadius * 1.4);
+                ctx.lineTo(35, -sharkRadius * 0.6);
                 ctx.closePath();
                 ctx.fillStyle = '#1E3A8A';
                 ctx.fill();
 
-                // かわいい丸い目（魚たちとお揃いテイスト）
+                // かわいい丸い目
                 ctx.beginPath();
-                ctx.arc(-sharkRadius * 0.4, -sharkRadius * 0.2, 16, 0, Math.PI * 2);
+                ctx.arc(-sharkRadius * 0.4, -sharkRadius * 0.2, 22, 0, Math.PI * 2);
                 ctx.fillStyle = 'white';
                 ctx.fill();
                 ctx.beginPath();
-                ctx.arc(-sharkRadius * 0.4 + 4, -sharkRadius * 0.2, 8, 0, Math.PI * 2);
+                ctx.arc(-sharkRadius * 0.4 + 6, -sharkRadius * 0.2, 11, 0, Math.PI * 2);
                 ctx.fillStyle = '#1e293b';
                 ctx.fill();
 
-                // パクパク開閉する大口（アニメーション）
-                const biteAngle = Math.sin(activeShark.progress * 0.6) * 0.35 + 0.35;
+                // 大きくパクパク開閉する大口
+                const biteAngle = Math.sin(activeShark.progress * 0.5) * 0.4 + 0.4;
                 ctx.beginPath();
-                ctx.moveTo(-sharkRadius * 0.8, 0);
-                ctx.arc(0, 0, sharkRadius * 0.9, Math.PI - biteAngle, Math.PI + biteAngle, false);
+                ctx.moveTo(-sharkRadius * 0.85, 0);
+                ctx.arc(0, 0, sharkRadius * 0.95, Math.PI - biteAngle, Math.PI + biteAngle, false);
                 ctx.closePath();
-                ctx.fillStyle = '#7F1D1D'; // 口の中（赤め）
+                ctx.fillStyle = '#7F1D1D';
                 ctx.fill();
-                ctx.lineWidth = 4;
+                ctx.lineWidth = 5;
                 ctx.strokeStyle = '#991B1B';
                 ctx.stroke();
 
                 ctx.restore();
 
-                // サメがちょうど画面中央あたり（いけす内）に差し掛かった瞬間に魚たちを食べて消す
-                if (activeShark.progress === 45) {
+                // サメが画面真ん中に到達したタイミングで一気に全部食べる！
+                if (activeShark.progress === 50) {
                     const allBodies = Composite.allBodies(world);
                     const removableBodies = allBodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
                     removableBodies.forEach(b => {
@@ -745,7 +743,6 @@
                     }
                 }
 
-                // アニメーション終了
                 if (activeShark.progress >= activeShark.duration) {
                     activeShark = null;
                 }
