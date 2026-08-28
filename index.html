@@ -43,7 +43,6 @@
         .animate-pop {
             animation: pop 0.3s ease-in-out;
         }
-        /* サメのアニメーション */
         @keyframes swimShark {
             0% { right: -80px; transform: scaleX(-1) translateY(0) rotate(0deg); }
             25% { transform: scaleX(-1) translateY(-15px) rotate(-5deg); }
@@ -85,13 +84,12 @@
                 <h2 class="text-2xl sm:text-3xl font-black text-yellow-400 mb-1 text-outline">出世魚ゲーム</h2>
                 <p class="text-xs sm:text-sm font-bold text-blue-300 mb-3">〜板前サバイバル〜</p>
                 
-                <!-- 遊び方の説明欄（追加文言をスッキリ収めるよう調整） -->
                 <div class="bg-blue-950/80 border-2 border-blue-400/50 rounded-xl p-3 text-left mb-4 max-w-[340px] w-full text-xs sm:text-sm space-y-1.5 shadow-xl">
                     <p class="font-bold text-yellow-300 mb-1">🎣 遊び方:</p>
-                    <p>・魚を落として同じ種類同士をくっつけて出世させよう！</p>
-                    <p>・上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
-                    <p>・画面下部のサメボタンを押すと1度だけ全消しできます。</p>
+                    <p>・魚を落として同じ種類同士くっつけて出世させよう！</p>
+                    <p>・左上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
                     <p>・いけすの上のラインを超えた状態が続くとゲームオーバー。</p>
+                    <p>・画面左下のサメボタンを押すと1度だけ全消しできます。</p>
                 </div>
 
                 <button id="startBtn" class="px-8 py-3 bg-gradient-to-r from-green-400 to-emerald-600 text-white rounded-full font-black text-lg hover:scale-105 active:scale-95 transition-transform shadow-[0_0_15px_rgba(52,211,153,0.5)] text-outline">
@@ -218,6 +216,15 @@
             requestAnimationFrame(draw);
 
             document.getElementById('retryBtn').addEventListener('click', restartGame);
+
+            // ★ここでスタートボタンのクリックイベントを確実に登録するように修正しました
+            document.getElementById('startBtn').addEventListener('click', () => {
+                isGameStarted = true;
+                canDrop = true;
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameUIHeader').classList.remove('opacity-0');
+                document.getElementById('gameUIFooter').classList.remove('opacity-0');
+            });
         }
 
         function callShark() {
@@ -779,15 +786,6 @@
 
         window.addEventListener('load', () => {
             init();
-
-            document.getElementById('startBtn').addEventListener('click', () => {
-                isGameStarted = true;
-                canDrop = true;
-                // スタート画面を隠し、ゲーム中のUIを表示
-                document.getElementById('startScreen').classList.add('hidden');
-                document.getElementById('gameUIHeader').classList.remove('opacity-0');
-                document.getElementById('gameUIFooter').classList.remove('opacity-0');
-            });
         });
     </script>
 </body>
