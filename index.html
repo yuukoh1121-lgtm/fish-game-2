@@ -20,7 +20,7 @@ body {
     width: 100%;
     max-width: 420px;
     aspect-ratio: 420 / 700;
-    max-height: 85vh;
+    max-height: 80vh;
     background: linear-gradient(to bottom, #dbeafe, #bae6fd, #7dd3fc);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     border-radius: 12px;
@@ -80,13 +80,6 @@ canvas {
         <!-- メインゲームキャンバス -->
         <canvas id="gameCanvas" width="420" height="700"></canvas>
 
-        <!-- サメお助けボタン -->
-        <div class="absolute bottom-3 left-3 z-20 pointer-events-auto">
-            <button id="sharkBtn" onclick="callShark()" class="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 flex items-center gap-1">
-                🦈 サメ出動 (あと1回)
-            </button>
-        </div>
-
         <!-- ゲームオーバーUI -->
         <div id="gameOverUI" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white z-30 backdrop-blur-sm">
             <h2 class="text-5xl font-black text-red-500 mb-2 text-outline">閉店！</h2>
@@ -101,11 +94,15 @@ canvas {
         </div>
     </div>
 
-    <!-- 修正済みの説明文部分 -->
-    <div class="text-slate-400 text-[11px] sm:text-xs mt-3 text-center leading-tight">
-        🐟 注文の魚を揃えると【お寿司】になって出荷！<br>
-        🐡 フグや🪼クラゲは 🪝釣り針で駆除しよう<br>
-        <span class="text-pink-400">🦈 ピンチの時は左下のボタンで「サメ」が1回だけ魚を食べてくれるよ！</span>
+    <!-- ゲーム画面の外（下部）に配置したサメボタンと説明文 -->
+    <div class="w-full max-w-[420px] flex items-center justify-between mt-2 px-1 gap-2">
+        <button id="sharkBtn" onclick="callShark()" class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0">
+            🦈 サメ出動 (あと1回)
+        </button>
+        <div class="text-slate-400 text-[10px] sm:text-xs text-right leading-tight">
+            🐟 注文の魚を揃えると【お寿司】に！<br>
+            🐡フグや🪼クラゲは🪝釣り針で駆除
+        </div>
     </div>
 </main>
 
@@ -193,7 +190,7 @@ function callShark() {
 
     const btn = document.getElementById('sharkBtn');
     if (btn) {
-        btn.innerText = "🦈 サメ出動中！";
+        btn.innerText = "🦈 出動中…";
         btn.style.background = "#64748b";
         btn.style.cursor = "not-allowed";
     }
@@ -211,7 +208,7 @@ function callShark() {
 
     setTimeout(() => {
         if (btn) {
-            btn.innerText = "🦈 サメ使用済み";
+            btn.innerText = "🦈 使用済み";
         }
     }, 1200);
 }
