@@ -43,25 +43,27 @@
         .animate-pop {
             animation: pop 0.3s ease-in-out;
         }
-        @keyframes swimShark {
-            0% { right: -80px; transform: scaleX(-1) translateY(0) rotate(0deg); }
-            25% { transform: scaleX(-1) translateY(-15px) rotate(-5deg); }
-            50% { transform: scaleX(-1) translateY(10px) rotate(5deg); }
-            75% { transform: scaleX(-1) translateY(-10px) rotate(-3deg); }
-            100% { right: 480px; transform: scaleX(-1) translateY(0) rotate(0deg); }
+        /* ド迫力巨大ザメのアニメーション（右から左へ一気に横切る） */
+        @keyframes swimBigShark {
+            0% { right: -180px; transform: scaleX(-1) translateY(0) rotate(0deg); }
+            25% { transform: scaleX(-1) translateY(-25px) rotate(-8deg); }
+            50% { transform: scaleX(-1) translateY(15px) rotate(8deg); }
+            75% { transform: scaleX(-1) translateY(-15px) rotate(-5deg); }
+            100% { right: 550px; transform: scaleX(-1) translateY(0) rotate(0deg); }
         }
-        @keyframes bite {
-            0%, 100% { transform: scaleX(-1) rotate(0deg); }
-            50% { transform: scaleX(-1) rotate(-15deg); }
+        /* パクパクと大きく口を開閉するアニメーション */
+        @keyframes bigBite {
+            0%, 100% { transform: scaleX(-1) rotate(0deg) scale(1); }
+            30% { transform: scaleX(-1) rotate(-22deg) scale(1.1); }
+            60% { transform: scaleX(-1) rotate(5deg) scale(0.95); }
         }
-        .shark-anim {
+        .big-shark-anim {
             position: absolute;
-            top: 40%;
-            font-size: 64px;
-            animation: swimShark 1.5s linear forwards, bite 0.25s ease-in-out infinite;
+            top: 32%;
             z-index: 25;
             pointer-events: none;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+            animation: swimBigShark 1.4s linear forwards, bigBite 0.2s ease-in-out infinite;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
         /* サメボタン用の点滅アニメーション */
         @keyframes pulseAlert {
@@ -96,7 +98,7 @@
                     <p class="font-bold text-yellow-300 mb-0.5">🎣 遊び方:</p>
                     <p>・魚を落として同じ種類同士くっつけて出世させよう！</p>
                     <p>・左上のご注文通りに魚を揃えて出荷（スコア獲得）！</p>
-                    <p>・くらげとフグはお邪魔アイテム！釣り針（🪝）で消そう。</p>
+                    <p>・くらげとフグはお邪魔アイテム！釣り針（🪼・🐡は🪝で）消そう。</p>
                     <p>・エビ（🦐）は魚に当たるとワンランクアップさせるよ！</p>
                     <p>・画面下部のサメボタンを押すと1度だけ全消しできます。</p>
                     <p>・いけすの上のラインを超えた状態が続くとゲームオーバー。</p>
@@ -143,7 +145,7 @@
                 🦈 サメ出動 (あと1回)
             </button>
             <button id="exitBtn" onclick="returnToTitle()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-black text-xs shadow-lg active:scale-95 transition-transform border-2 border-slate-500 shrink-0">
-                🚪 Exit
+                🚪 Exit (表紙へ)
             </button>
         </div>
     </main>
@@ -259,8 +261,9 @@
             
             const btn = document.getElementById('sharkBtn');
             if (btn) {
-                btn.innerText = "🦈 サメ出動 (あと1回)";
+                btn.innerText = "🦈 サメ出動 (あと1型)";
                 btn.className = "px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 shrink-0";
+                btn.innerText = "🦈 サメ出動 (あと1回)";
                 btn.style.cursor = "pointer";
             }
             document.getElementById('gameOverUI').classList.add('hidden');
@@ -282,11 +285,22 @@
             }
 
             const wrapper = document.getElementById('canvas-wrapper');
-            const sharkEl = document.createElement('div');
-            sharkEl.innerHTML = "🦈";
-            sharkEl.className = "shark-anim";
-            wrapper.appendChild(sharkEl);
+            
+            // ド迫力の巨大ザメ（かわいい丸い目と大きなお口をカスタムHTMLで表現）
+            const bigSharkEl = document.createElement('div');
+            bigSharkEl.className = "big-shark-anim flex items-center justify-center";
+            bigSharkEl.innerHTML = `
+                <div style="position: relative; font-size: 110px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));">
+                    🦈
+                    <!-- かわいい丸い目 -->
+                    <div style="position: absolute; top: 28px; right: 45px; width: 16px; height: 16px; background: white; border-radius: 50%; border: 2px solid #1e293b; display: flex; align-items: center; justify-content: flex-end; padding-right: 2px;">
+                        <div style="width: 8px; height: 8px; background: #1e293b; border-radius: 50%;"></div>
+                    </div>
+                </div>
+            `;
+            wrapper.appendChild(bigSharkEl);
 
+            // サメが通過するタイミングで一気に全部食べる（消す）
             setTimeout(() => {
                 const bodies = Composite.allBodies(world);
                 const removableBodies = bodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
@@ -296,19 +310,18 @@
                 });
                 updateScore(removableBodies.length * 50);
                 gameOverTimer = 0;
-                // サメ使用後はピンチアニメーションを強制解除
                 const sharkBtn = document.getElementById('sharkBtn');
-                if (sharkBtn && canUseShark === false) {
+                if (sharkBtn) {
                     sharkBtn.classList.remove('animate-pinch');
                 }
-            }, 700);
+            }, 600);
 
             setTimeout(() => {
-                sharkEl.remove();
+                bigSharkEl.remove();
                 if (btn) {
                     btn.innerText = "🦈 使用済み";
                 }
-            }, 1500);
+            }, 1400);
         }
 
         function updateMissionUI() {
@@ -591,7 +604,6 @@
 
             if (isOver) {
                 gameOverTimer++;
-                // 危険ラインを超えてピンチ状態になったらサメボタンをピカピカ光らせる（未使用の場合のみ）
                 if (canUseShark && sharkBtn) {
                     sharkBtn.classList.add('animate-pinch');
                 }
@@ -604,7 +616,6 @@
                 }
             } else {
                 gameOverTimer = 0;
-                // ピンチ脱出したらサメボタンのピカピカを止めて通常に戻す（未使用の場合のみ）
                 if (canUseShark && sharkBtn) {
                     sharkBtn.classList.remove('animate-pinch');
                 }
@@ -834,7 +845,7 @@
                 c.fillStyle = '#FFFFFF';
                 c.font = "bold 26px sans-serif";
                 c.textAlign = "center";
-                c.textBaseline = "middle";
+                c.textBaseline="middle";
                 c.fillText("🐡", 0, 0);
             } else if (itemData.type === 'jellyfish') {
                 c.rotate(angle);
