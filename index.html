@@ -80,7 +80,7 @@ canvas {
         <!-- メインゲームキャンバス -->
         <canvas id="gameCanvas" width="420" height="700"></canvas>
 
-        <!-- サメお助けボタン（ゲーム画面内右上付近や好みの位置に配置） -->
+        <!-- サメお助けボタン -->
         <div class="absolute bottom-3 left-3 z-20 pointer-events-auto">
             <button id="sharkBtn" onclick="callShark()" class="px-3 py-2 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-black text-xs sm:text-sm shadow-lg hover:scale-105 active:scale-95 transition-transform text-outline border-2 border-white/80 flex items-center gap-1">
                 🦈 サメ出動 (あと1回)
@@ -101,6 +101,7 @@ canvas {
         </div>
     </div>
 
+    <!-- 修正済みの説明文部分 -->
     <div class="text-slate-400 text-[11px] sm:text-xs mt-3 text-center leading-tight">
         🐟 注文の魚を揃えると【お寿司】になって出荷！<br>
         🐡 フグや🪼クラゲは 🪝釣り針で駆除しよう<br>
@@ -155,7 +156,7 @@ let bodiesToRemove = [], bodiesToAdd = [];
 let currentMissionIndex = 0;
 let timeTick = 0;
 let isMissionAnimating = false;
-let canUseShark = true; // 1ゲーム1回のサメ機能フラグ
+let canUseShark = true;
 
 function init() {
     canvas = document.getElementById('gameCanvas');
@@ -186,7 +187,6 @@ function init() {
     document.getElementById('retryBtn').addEventListener('click', restartGame);
 }
 
-// サメお助け機能の実装
 function callShark() {
     if (!canUseShark || isGameOver) return;
     canUseShark = false;
@@ -198,7 +198,6 @@ function callShark() {
         btn.style.cursor = "not-allowed";
     }
 
-    // いけす内のすべての魚、フグ、クラゲ、エサを対象にしてクリア
     const bodies = Composite.allBodies(world);
     const removableBodies = bodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
 
@@ -207,7 +206,6 @@ function callShark() {
         bodiesToRemove.push(b);
     });
 
-    // ピンチ脱出＆お助けボーナス加算
     updateScore(removableBodies.length * 50);
     gameOverTimer = 0;
 
@@ -512,7 +510,6 @@ function restartGame() {
     nextItem = getRandomItem();
     nextNextItem = getRandomItem();
     
-    // サメボタンの復活・リセット
     canUseShark = true;
     const btn = document.getElementById('sharkBtn');
     if (btn) {
