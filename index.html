@@ -43,6 +43,27 @@ canvas {
 .animate-pop {
     animation: pop 0.3s ease-in-out;
 }
+/* サメが右から左へ泳ぐアニメーション ＆ パクパク口の動き */
+@keyframes swimShark {
+    0% { right: -80px; transform: scaleX(-1) translateY(0) rotate(0deg); }
+    25% { transform: scaleX(-1) translateY(-15px) rotate(-5deg); }
+    50% { transform: scaleX(-1) translateY(10px) rotate(5deg); }
+    75% { transform: scaleX(-1) translateY(-10px) rotate(-3deg); }
+    100% { right: 480px; transform: scaleX(-1) translateY(0) rotate(0deg); }
+}
+@keyframes bite {
+    0%, 100% { transform: scaleX(-1) rotate(0deg); }
+    50% { transform: scaleX(-1) rotate(-15deg); }
+}
+.shark-anim {
+    position: absolute;
+    top: 40%;
+    font-size: 64px;
+    animation: swimShark 1.5s linear forwards, bite 0.25s ease-in-out infinite;
+    z-index: 25;
+    pointer-events: none;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+}
 </style>
 </head>
 <body class="flex flex-col h-[100dvh] m-0 overflow-hidden text-slate-800">
@@ -100,7 +121,7 @@ canvas {
         </button>
         <div class="text-slate-400 text-[10px] sm:text-xs text-right leading-tight">
             <span class="text-pink-400 font-bold">🦈 サメで魚を全消し！(1回限定)</span><br>
-            🐟注文揃えて出荷 🐡🪼は🪝で消す
+            🐟注文揃えて出荷 🐡🪼🪝はサメで消す
         </div>
     </div>
 </main>
@@ -194,22 +215,34 @@ function callShark() {
         btn.style.cursor = "not-allowed";
     }
 
-    const bodies = Composite.allBodies(world);
-    const removableBodies = bodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
+    // 水槽（キャンバスラッパー）の上にサメの要素を生成して泳がせる
+    const wrapper = document.getElementById('canvas-wrapper');
+    const sharkEl = document.createElement('div');
+    sharkEl.innerHTML = "🦈";
+    sharkEl.className = "shark-anim";
+    wrapper.appendChild(sharkEl);
 
-    removableBodies.forEach(b => {
-        b.isMissionConsumed = true;
-        bodiesToRemove.push(b);
-    });
-
-    updateScore(removableBodies.length * 50);
-    gameOverTimer = 0;
-
+    // サメが泳いでいる最中（約0.7秒後、ちょうど真ん中あたり）に一網打尽でパクッと食べる
     setTimeout(() => {
+        const bodies = Composite.allBodies(world);
+        const removableBodies = bodies.filter(b => ['fish', 'fugu', 'jellyfish', 'bait'].includes(b.itemType));
+
+        removableBodies.forEach(b => {
+            b.isMissionConsumed = true;
+            bodiesToRemove.push(b);
+        });
+
+        updateScore(removableBodies.length * 50);
+        gameOverTimer = 0;
+    }, 700);
+
+    // アニメーション終了後（1.5秒後）にサメを削除し、ボタンを「使用済み」にする
+    setTimeout(() => {
+        sharkEl.remove();
         if (btn) {
             btn.innerText = "🦈 使用済み";
         }
-    }, 1200);
+    }, 1500);
 }
 
 function updateMissionUI() {
