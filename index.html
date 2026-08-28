@@ -428,13 +428,13 @@
         function checkGameOver() {
             if (isGameOver) return;
             const bodies = Composite.allBodies(world);
-            // ゲームオーバー判定：魚とフグのみ対象。
-            // クラゲはいけす内をフワフワ漂うため判定から除外します。
-            let isOver = bodies.some(b => ['fish', 'fugu'].includes(b.itemType) && b.bounds.min.y < DEAD_LINE_Y && b.speed < 0.5);
             
+            // 魚またはフグが赤線（DEAD_LINE_Y）より上にいるかを判定（速度条件を緩和または削除）
+            let isOver = bodies.some(b => ['fish', 'fugu'].includes(b.itemType) && b.bounds.min.y < DEAD_LINE_Y && b.speed < 2.0);
+        
             if (isOver) {
                 gameOverTimer++;
-                if (gameOverTimer > 120) {
+                if (gameOverTimer > 60) { // 判定フレームを120（約2秒）から60（約1秒）に短縮するとより確実になります
                     isGameOver = true;
                     canDrop = false;
                     document.getElementById('finalScore').innerText = score;
